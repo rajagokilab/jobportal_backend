@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Applications for {{ job.title }}</h2>
+<ul>
+    {% for app in applications %}
+    <li>
+        {{ app.candidate.user.username }} 
+        - Shortlisted: {% if app.shortlisted %}✅{% else %}❌{% endif %}
+        {% if app.interview_date %} - Interview: {{ app.interview_date }}{% endif %}
+        - <a href="{% url 'update_application' app.id %}">Update</a>
+    </li>
+    {% empty %}
+    <li>No applications yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

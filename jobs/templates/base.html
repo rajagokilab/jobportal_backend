@@ -1,0 +1,133 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Portal</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f7f7f7;
+            color: #333;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        header a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        footer {
+            text-align: center;
+            margin: 50px 0 20px 0;
+            color: #777;
+        }
+
+        .quick-links, .message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .message {
+            padding: 15px;
+            background: #dff0d8;
+            color: #3c763d;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        form input, form select, form textarea, form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        form button {
+            background: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        form button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Job Portal</h1>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+
+            {% if user.is_authenticated %}
+                {% if user.jobseeker %}
+                    <a href="{% url 'my_applications' %}">My Applications</a>
+                {% endif %}
+                {% if user.employer %}
+                    <a href="{% url 'post_job' %}">Post Job</a>
+                    <!-- Example: Manage applications for a specific job -->
+{% if user.employer %}
+  {% for job in user.employer.job_set.all %}
+    <a href="{% url 'applications_list' job_id=job.id %}">Manage Applications for {{ job.title }}</a>
+  {% endfor %}
+{% endif %}                {% endif %}
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register_jobseeker' %}">Register Job Seeker</a>
+                <a href="{% url 'register_employer' %}">Register Employer</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        <!-- Page-specific content will be rendered here -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Job Portal. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Employer</title>
+    <style>
+        body { font-family: Arial; background: #f7f7f7; margin: 0; }
+        main { max-width: 500px; margin: 50px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #3498db; color: white; border: none; cursor: pointer; }
+        button:hover { background: #2980b9; }
+        header { text-align: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<main>
+    <header><h2>Register as Employer</h2></header>
+    <form method="post">
+        {% csrf_token %}
+        {{ user_form.as_p }}
+        {{ employer_form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+    <p><a href="{% url 'home' %}">Back to Home</a></p>
+</main>
+</body>
+</html>

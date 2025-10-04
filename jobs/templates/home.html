@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Job Listings</h2>
+
+{% if jobs %}
+    {% for job in jobs %}
+    <div class="job-card">
+        <strong>{{ job.title }}</strong> - {{ job.location }}<br>
+        {{ job.description }}<br>
+        {% if user.is_authenticated and user.jobseeker %}
+            <a href="{% url 'apply_job' job.id %}">Apply for this Job</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <p style="text-align:center;">No jobs posted yet.</p>
+{% endif %}
+
+<div class="quick-links">
+    <h3>Quick Links</h3>
+    <a href="{% url 'register_jobseeker' %}">Register as Job Seeker</a> |
+    <a href="{% url 'register_employer' %}">Register as Employer</a> |
+    <a href="{% url 'post_job' %}">Post Job</a>
+</div>
+{% endblock %}

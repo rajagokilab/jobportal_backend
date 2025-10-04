@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>My Applications</h2>
+{% if applications %}
+    <ul>
+        {% for app in applications %}
+            <li>
+                <strong>{{ app.job.title }}</strong> - Status: {{ app.status }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You have not applied to any jobs yet.</p>
+{% endif %}
+{% endblock %}
