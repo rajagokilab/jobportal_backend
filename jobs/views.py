@@ -15,18 +15,22 @@ def home(request):
     jobs = Job.objects.all()
     return render(request, 'home.html', {'jobs': jobs})
 
+# ------------------------
+# Registration Views
+# ------------------------
 def register_jobseeker(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST)
         seeker_form = JobSeekerForm(request.POST, request.FILES)
         if user_form.is_valid() and seeker_form.is_valid():
-            user = user_form.save()
+            user = user_form.save(commit=False)
             user.set_password(user.password)
             user.save()
             seeker = seeker_form.save(commit=False)
             seeker.user = user
             seeker.save()
             login(request, user)
+            messages.success(request, "Job Seeker registered successfully.")
             return redirect('home')
     else:
         user_form = UserForm()
@@ -38,22 +42,23 @@ def register_employer(request):
         user_form = UserForm(request.POST)
         employer_form = EmployerForm(request.POST)
         if user_form.is_valid() and employer_form.is_valid():
-            user = user_form.save()
+            user = user_form.save(commit=False)
             user.set_password(user.password)
             user.save()
             employer = employer_form.save(commit=False)
             employer.user = user
             employer.save()
             login(request, user)
+            messages.success(request, "Employer registered successfully.")
             return redirect('home')
     else:
         user_form = UserForm()
         employer_form = EmployerForm()
     return render(request, 'register_employer.html', {'user_form': user_form, 'employer_form': employer_form})
 
-# ========================
+# ------------------------
 # Authentication Views
-# ========================
+# ------------------------
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -63,7 +68,9 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user:
                 login(request, user)
-                return redirect('home')
+                next_url = request.GET.get('next', 'home')
+                messages.success(request, f"Welcome {user.username}!")
+                return redirect(next_url)
             messages.error(request, "Invalid username or password.")
     else:
         form = LoginForm()
@@ -71,6 +78,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
+    messages.info(request, "You have been logged out.")
     return redirect('home')
 
 # ========================
@@ -79,6 +87,7 @@ def logout_view(request):
 @login_required
 def post_job(request):
     if not hasattr(request.user, 'employer'):
+        messages.error(request, "Only employers can post jobs.")
         return redirect('home')
     if request.method == 'POST':
         form = JobForm(request.POST)
@@ -86,6 +95,7 @@ def post_job(request):
             job = form.save(commit=False)
             job.employer = request.user.employer
             job.save()
+            messages.success(request, "Job posted successfully.")
             return redirect('home')
     else:
         form = JobForm()
@@ -95,9 +105,14 @@ def post_job(request):
 def apply_job(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     if not hasattr(request.user, 'jobseeker'):
+        messages.error(request, "Only job seekers can apply.")
         return redirect('home')
     seeker = request.user.jobseeker
     application, created = Application.objects.get_or_create(job=job, candidate=seeker)
+    if created:
+        messages.success(request, f"Applied for {job.title} successfully.")
+    else:
+        messages.info(request, f"You have already applied for {job.title}.")
     return render(request, 'apply_job.html', {'job': job, 'application': application, 'created': created})
 
 # ========================
@@ -106,6 +121,7 @@ def apply_job(request, job_id):
 @login_required
 def my_applications(request):
     if not hasattr(request.user, 'jobseeker'):
+        messages.error(request, "Access denied.")
         return redirect('home')
     seeker = request.user.jobseeker
     applications = Application.objects.filter(candidate=seeker)
@@ -118,6 +134,7 @@ def my_applications(request):
 def applications_list(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     if not hasattr(request.user, 'employer') or job.employer != request.user.employer:
+        messages.error(request, "Access denied.")
         return redirect('home')
     applications = Application.objects.filter(job=job)
     return render(request, 'applications_list.html', {'job': job, 'applications': applications})
@@ -126,11 +143,13 @@ def applications_list(request, job_id):
 def update_application(request, app_id):
     application = get_object_or_404(Application, id=app_id)
     if not hasattr(request.user, 'employer') or application.job.employer != request.user.employer:
+        messages.error(request, "Access denied.")
         return redirect('home')
     if request.method == 'POST':
         form = ApplicationForm(request.POST, instance=application)
         if form.is_valid():
             form.save()
+            messages.success(request, f"Application status updated for {application.candidate.user.username}.")
             return redirect('applications_list', job_id=application.job.id)
     else:
         form = ApplicationForm(instance=application)
@@ -140,6 +159,7 @@ def update_application(request, app_id):
 def schedule_interview(request, app_id):
     application = get_object_or_404(Application, id=app_id)
     if not hasattr(request.user, 'employer') or application.job.employer != request.user.employer:
+        messages.error(request, "Access denied.")
         return redirect('home')
     if request.method == 'POST':
         form = InterviewForm(request.POST)
@@ -147,6 +167,7 @@ def schedule_interview(request, app_id):
             interview = form.save(commit=False)
             interview.application = application
             interview.save()
+            messages.success(request, f"Interview scheduled for {application.candidate.user.username}.")
             return redirect('applications_list', job_id=application.job.id)
     else:
         form = InterviewForm()
