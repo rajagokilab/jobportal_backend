@@ -80,16 +80,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'jobportal_db',   # Your database name
-        'USER': 'root',           # Your MySQL username
-        'PASSWORD': '123456',     # Your MySQL password
-        'HOST': 'localhost',      # Usually localhost
-        'PORT': '3306',           # Default MySQL port
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'jobportal_db',   # Your database name
+#         'USER': 'root',           # Your MySQL username
+#         'PASSWORD': '123456',     # Your MySQL password
+#         'HOST': 'localhost',      # Usually localhost
+#         'PORT': '3306',           # Default MySQL port
+#     }
+# }
 
 
 # Password validation
